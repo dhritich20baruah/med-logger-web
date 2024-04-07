@@ -1,113 +1,262 @@
-import Image from "next/image";
-
+"use client";
+import { useState } from "react";
 export default function Home() {
+  const [name, setName] = useState("");
+  const [age, setAge] = useState(0);
+  const [weight, setWeight] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [heightUnit, setHeightUnit] = useState(false);
+  const [weightUnit, setWeightUnit] = useState(false);
+  const [feet, setFeet] = useState(0);
+  const [inch, setInch] = useState(0);
+  const [errors, setErrors] = useState({});
+
+  const toggleWeightUnit = () => {
+    setWeightUnit((weightUnit) => !weightUnit);
+  };
+
+  const toggleHeightUnit = () => {
+    setHeightUnit((heightUnit) => !heightUnit);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    let formIsValid = true;
+    const newErrors = {};
+
+    // Validation for name
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+      formIsValid = false;
+    }
+
+    // Validation for age
+    if (!age.trim() || isNaN(parseInt(age))) {
+      newErrors.age = "Age must be a number";
+      formIsValid = false;
+    }
+
+    // Validation for weight
+    if (!weight.trim() || isNaN(parseFloat(weight))) {
+      newErrors.weight = "Weight must be a number";
+      formIsValid = false;
+    }
+
+    // Validation for height
+    if (heightUnit) {
+      if (!feet.trim() || isNaN(parseInt(feet))) {
+        newErrors.height = "Feet must be a number";
+        formIsValid = false;
+      }
+      if (!inch.trim() || isNaN(parseInt(inch))) {
+        newErrors.height = "Inches must be a number";
+        formIsValid = false;
+      }
+    } else {
+      if (!height.trim() || isNaN(parseFloat(height))) {
+        newErrors.height = "Height must be a number";
+        formIsValid = false;
+      }
+    }
+
+    // If form is not valid, set the errors and return
+    if (!formIsValid) {
+      setErrors(newErrors);
+      return;
+    }
+
+    let heightResult = height;
+    let weightResult = weight;
+    if (heightUnit) {
+      const totalInches = parseInt(feet) * 12 + parseInt(inch);
+      const centimeters = totalInches * 2.54;
+      heightResult = centimeters;
+    }
+
+    if (weightUnit) {
+      const weightInKg = parseInt(weight) * 0.45;
+      weightResult = weightInKg;
+    }
+
+    const userObj = {
+      name: name,
+      age: age,
+      height: heightResult + "cm",
+      weight: weightResult + "kg",
+    };
+    console.log(userObj);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="max-w-md mx-auto mt-8">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+      >
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="name"
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            Name
+          </label>
+          <input
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.name ? "border-red-500" : ""
+            }`}
+            id="name"
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {errors.name && (
+            <p className="text-red-500 text-xs italic">{errors.name}</p>
+          )}
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="age"
+          >
+            Age
+          </label>
+          <input
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.age ? "border-red-500" : ""
+            }`}
+            id="age"
+            type="number"
+            placeholder="Age"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
+          {errors.age && (
+            <p className="text-red-500 text-xs italic">{errors.age}</p>
+          )}
+        </div>
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="weight"
+          >
+            Weight ({weightUnit ? `in lb.` : `in kg.`})
+          </label>
+          <input
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.weight ? "border-red-500" : ""
+            }`}
+            id="weight"
+            type="number"
+            placeholder="Weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+          {errors.weight && (
+            <p className="text-red-500 text-xs italic">{errors.weight}</p>
+          )}
+          <div className="my-5">
+            <button
+              type="button"
+              className={`ml-2 px-3 py-2 ${
+                weightUnit ? "bg-gray-300" : "bg-blue-600"
+              } hover:bg-gray-400 text-gray-800 font-semibold rounded focus:outline-none focus:shadow-outline`}
+              onClick={toggleWeightUnit}
+            >
+              Kg
+            </button>
+            <button
+              type="button"
+              className={`ml-2 px-3 py-2 ${
+                !weightUnit ? "bg-gray-300" : "bg-blue-600"
+              } hover:bg-gray-400 text-gray-800 font-semibold rounded focus:outline-none focus:shadow-outline`}
+              onClick={toggleWeightUnit}
+            >
+              lb.
+            </button>
+          </div>
+        </div>
+        <div className="mb-6">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="height"
+          >
+            Height ({heightUnit ? `in ft-in.` : `in cm.`})
+          </label>
+          {heightUnit ? (
+            <div className="flex justify-evenly">
+              <input
+                className={`shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                  errors.height ? "border-red-500" : ""
+                }`}
+                id="feet"
+                type="text"
+                placeholder="Feet"
+                value={feet}
+                onChange={(e) => setFeet(e.target.value)}
+              />
+              {errors.height && (
+                <p className="text-red-500 text-xs italic">{errors.height}</p>
+              )}
+              <input
+                className={`shadow appearance-none border rounded w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                  errors.height ? "border-red-500" : ""
+                }`}
+                id="inch"
+                type="text"
+                placeholder="Inches"
+                value={inch}
+                onChange={(e) => setInch(e.target.value)}
+              />
+            </div>
+          ) : (
+            <>
+              <input
+                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                  errors.height ? "border-red-500" : ""
+                }`}
+                id="height"
+                type="text"
+                placeholder="Height in cm"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+              />
+              {errors.height && (
+                <p className="text-red-500 text-xs italic">{errors.height}</p>
+              )}
+            </>
+          )}
+          <div className="my-5">
+            <button
+              type="button"
+              className={`ml-2 px-3 py-2 ${
+                heightUnit ? "bg-gray-300" : "bg-blue-600"
+              } hover:bg-gray-400 text-gray-800 font-semibold rounded focus:outline-none focus:shadow-outline`}
+              onClick={toggleHeightUnit}
+            >
+              cm
+            </button>
+            <button
+              type="button"
+              className={`ml-2 px-3 py-2 ${
+                !heightUnit ? "bg-gray-300" : "bg-blue-600"
+              } hover:bg-gray-400 text-gray-800 font-semibold rounded focus:outline-none focus:shadow-outline`}
+              onClick={toggleHeightUnit}
+            >
+              ft-in
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="submit"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
