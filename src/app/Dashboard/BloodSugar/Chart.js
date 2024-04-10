@@ -6,7 +6,7 @@ import { Line } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const LineChart = ({ data }) => {
+const SugarChart = ({ data }) => {
   return (
     <div className="mx-10">
       <Line 
@@ -15,7 +15,7 @@ const LineChart = ({ data }) => {
             plugins: {
               title: {
                 display: true,
-                text: "Last Ten Blood Pressure Readings"
+                text: "Last Ten Blood Sugar Readings"
               },
               legend: {
                 display: false
@@ -27,4 +27,4 @@ const LineChart = ({ data }) => {
   );
 };
 
-export default LineChart;
+export default SugarChart;
