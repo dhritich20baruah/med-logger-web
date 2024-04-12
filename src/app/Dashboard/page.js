@@ -55,7 +55,7 @@ export default function Dashboard() {
               className="w-20 h-20"
             />
             <h2 className="text-center font-semibold ">Diagnostic Reports</h2>
-            <Link href="#">
+            <Link href="/Dashboard/DiagnosticReports">
               <button className="p-2 bg-red-600 text-white font-semibold hover:bg-white hover:text-red-600 border-2 border-red-600">
                 Record
               </button>

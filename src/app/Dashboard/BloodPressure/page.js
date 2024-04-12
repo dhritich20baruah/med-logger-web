@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import TodaysDate from "@/app/component/TodaysDate";
 import LineChart from "./Graph";
 import Link from 'next/link'
 import Chart from "chart.js/auto";
@@ -38,9 +39,9 @@ export default function BloodPressure() {
             <p className="p-1">Blood Pressure</p>
           </div>
         </div>
-        <p className="text-center m-3 rounded-xl bg-indigo-500">
-          {/* {new Date().toISOString().slice("T")} */}
-        </p>
+        <div className="text-center m-3 rounded-xl bg-indigo-500">
+          <TodaysDate/>
+        </div>
       </div>
       <div className="md:flex md:flex-row flex-col">
         <div className="m-5 md:w-1/2">

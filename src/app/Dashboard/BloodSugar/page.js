@@ -1,6 +1,7 @@
 "use client"
 import SugarChart from "./Chart"
 import Link from 'next/link'
+import TodaysDate from "@/app/component/TodaysDate";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 Chart.register(CategoryScale);
@@ -66,9 +67,9 @@ export default function BloodSugar(){
             <p className="p-1">Blood Sugar</p>
           </div>
         </div>
-        <p className="text-center m-3 rounded-xl bg-indigo-500">
-          {/* {new Date().toISOString().slice("T")} */}
-        </p>
+        <div className="text-center m-3 rounded-xl bg-indigo-500">
+          <TodaysDate/>
+        </div>
       </div>
       <div className="md:flex md:flex-row flex-col">
         <div className="m-5 md:w-1/2">
