@@ -5,10 +5,11 @@ import TodaysDate from "@/app/component/TodaysDate";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 Chart.register(CategoryScale);
+import MyCalendar from "@/app/component/Calender";
 
 import {useState} from 'react'
 
-const data = {
+const FSS = {
   labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
   datasets: [
     {
@@ -18,13 +19,25 @@ const data = {
       borderColor: "red",
       tension: 0.1,
     },
+  ],
+};
+
+const PPS = {
+  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
+  datasets: [
     {
       label: "Postprandial",
       data: [104, 106, 104, 108, 100, 108, 104],
       fill: false,
       borderColor: "orange",
       tension: 0.1,
-    },
+    }
+  ],
+};
+
+const RS = {
+  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
+  datasets: [
     {
         label: "Random",
         data: [114, 116, 114, 118, 110, 118, 114],
@@ -145,10 +158,16 @@ export default function BloodSugar(){
                 <button className="bg-orange-600 text-white p-2 hover:bg-white hover:text-orange-600 border-2 border-orange-600" onClick={handleSubmit}>ADD</button>
             </div>
           </div>
+          {/* Calender */}
+          <div className="m-10 flex justify-center items-center">
+            <MyCalendar/>
+          </div>
         </div>
         <div className="md:m-5 md:w-1/2">
           <h1 className="mx-10 text-center text-lg">My Chart</h1>
-          <SugarChart data={data} />
+          <SugarChart data={FSS} />
+          <SugarChart data={PPS} />
+          <SugarChart data={RS} />
         </div>
       </div>
     </>

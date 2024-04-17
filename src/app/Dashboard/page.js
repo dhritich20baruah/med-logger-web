@@ -5,7 +5,7 @@ export default function Dashboard() {
     <>
       <div className="md:text-xl text-lg bg-indigo-700 m-5 flex justify-evenly p-5 text-white">
         <div className="w-1/2">
-          <h1 className="p-2">Hello name</h1>
+          <h1 className="p-2">Hello Rajib</h1>
         </div>
         <div className="w-1/2">
           <h1 className="bg-white text-indigo-700 rounded-lg p-2">
@@ -93,7 +93,19 @@ export default function Dashboard() {
             </Link>
           </div>
           <div className="bg-white p-4 flex flex-col items-center justify-center relative space-y-2 shadow-lg shadow-black">
-            Item 6
+            <Image
+              src="/lock.svg"
+              width={500}
+              height={500}
+              alt="blood pressure"
+              className="w-20 h-20"
+            />
+            <h2 className="text-center font-semibold ">Log Out</h2>
+            <Link href="#">
+              <button className="p-2 bg-red-600 text-white font-semibold hover:bg-white hover:text-red-600 border-2 border-red-600">
+                Record
+              </button>
+            </Link>
           </div>
         </div>
       </div>

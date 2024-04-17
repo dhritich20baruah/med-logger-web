@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import axios from "axios";
+
 export default function Home() {
   const [name, setName] = useState("");
   const [age, setAge] = useState(0);
@@ -19,7 +21,7 @@ export default function Home() {
     setHeightUnit((heightUnit) => !heightUnit);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     let formIsValid = true;
@@ -82,10 +84,15 @@ export default function Home() {
     const userObj = {
       name: name,
       age: age,
-      height: heightResult + "cm",
-      weight: weightResult + "kg",
+      height: heightResult + " cm",
+      weight: weightResult + " kg",
     };
-    console.log(userObj);
+    const result = await axios.post('/api/user', userObj)
+    .then(()=>{
+      alert('user added')
+    })
+    console.log(result)
+    window.location.reload(false)
   };
 
   return (
