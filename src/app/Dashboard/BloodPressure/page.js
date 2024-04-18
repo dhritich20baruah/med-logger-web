@@ -1,5 +1,7 @@
 "use client";
-import React from "react";
+import React, {useState, useEffect} from "react";
+import { useSearchParams } from "next/navigation";
+import axios from "axios";
 import TodaysDate from "@/app/component/TodaysDate";
 import LineChart from "./Graph";
 import Link from 'next/link'
@@ -28,6 +30,56 @@ const data = {
 };
 
 export default function BloodPressure() {
+  const [systolic, setSystolic] = useState(0)
+  const [diastolic, setDiastolic] = useState(0)
+  const [pulse, setPulse] = useState(0)
+  const searchParams = useSearchParams()
+  const userInfo = searchParams.getAll('userInfo')
+  // Parse userInfo if it exists
+  let userObj = null;
+  if (userInfo) {
+    try {
+      userObj = JSON.parse(userInfo);
+    } catch (error) {
+      console.error('Error parsing userInfo:', error);
+    }
+  }
+
+  
+  const handleSystolicChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 0 && value <= 300) {
+      setSystolic(value);
+    }
+  };
+
+  const handleDiastolicChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 0 && value <= 200) {
+      setDiastolic(value);
+    }
+  };
+
+  const submitPressure = async (e) => {
+    e.preventDefault()
+    let dateString = new Date().toISOString()
+    const pressureObj = {
+      date: dateString.slice(0, dateString.indexOf("T")).split("-").reverse().join("-"),
+      systolic,
+      diastolic,
+      pulse,
+      user_id: userObj.id
+    }
+    console.log(pressureObj)
+    const result = await axios.post('/api/bloodPressure', pressureObj)
+    const data = result.data
+    if (data.status == "OK") {
+      alert("Pressure Recorded");
+      window.location.reload()
+    } else {
+      alert("Please fill the form again");
+    }
+  }
   return (
     <>
       <div className="bg-indigo-700 text-white font-semibold p-3">
@@ -68,35 +120,35 @@ export default function BloodPressure() {
               VIEW ALL
             </button>
           </div>
-          <div>
+          <form>
             <h1 className="text-xl text-center m-5">ADD NEW RECORD</h1>
             <div className="new-record my-5 mx-10 flex justify-between space-x-5">
               <div className="w-1/3 text-center">
                 <label className="text-gray-900">Systolic (mmHg)</label> <br />
                 <input
                   className="text-xl p-3 outline-none shadow-lg shadow-black w-20 h-20"
-                  type="number"
+                  type="number" defaultValue={systolic} min="0" max="300"  onInput={handleSystolicChange} required
                 />
               </div>
               <div className="w-1/3 text-center">
                 <label className="text-gray-900">Diastolic (mmHg)</label> <br />
                 <input
                   className="text-xl p-3 outline-none shadow-lg shadow-black w-20 h-20"
-                  type="number"
+                  type="number" defaultValue={diastolic} min="0" max="200" onInput={handleDiastolicChange} required
                 />
               </div>
               <div className="w-1/3 text-center">
                 <label className="text-gray-900">Pulse (BPM)</label> <br />
                 <input
                   className="text-xl p-3 outline-none shadow-lg shadow-black w-20 h-20"
-                  type="number"
+                  type="number" defaultValue={pulse} min="0" max="300" onChange={(e)=>setPulse(e.target.value)} required
                 />
               </div>
             </div>
             <div className="flex justify-center">
-                <button className="bg-orange-600 text-white p-2 hover:bg-white hover:text-orange-600 border-2 border-orange-600">ADD</button>
+                <button className="bg-orange-600 text-white p-2 hover:bg-white hover:text-orange-600 border-2 border-orange-600" onClick={submitPressure}>ADD</button>
             </div>
-          </div>
+          </form>
         </div>
         <div className="md:m-5 md:w-1/2">
           <h1 className="mx-10 text-center text-lg">My Chart</h1>

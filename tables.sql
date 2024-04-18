@@ -19,7 +19,6 @@ create table blood_sugar (
 	fasting VARCHAR,
     postprandial VARCHAR,
     random VARCHAR,
-	location VARCHAR NOT NULL,
     user_id BIGINT REFERENCES user_info(id),
     UNIQUE (user_id)
 );
@@ -30,7 +29,5 @@ create table blood_pressure (
 	systolic VARCHAR,
     diastolic VARCHAR,
     pulse VARCHAR,
-	location VARCHAR NOT NULL,
-    user_id BIGINT REFERENCES user_info(id),
-    UNIQUE (user_id)
+    user_id BIGINT NOT NULL
 );

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -12,6 +13,8 @@ export default function Home() {
   const [feet, setFeet] = useState(0);
   const [inch, setInch] = useState(0);
   const [errors, setErrors] = useState({});
+
+  const router = useRouter()
 
   const toggleWeightUnit = () => {
     setWeightUnit((weightUnit) => !weightUnit);
@@ -88,11 +91,15 @@ export default function Home() {
       weight: weightResult + " kg",
     };
     const result = await axios.post('/api/user', userObj)
-    .then(()=>{
-      alert('user added')
-    })
-    console.log(result)
-    window.location.reload(false)
+    const data = result.data
+    console.log(data)
+    if (data.status == "OK") {
+      localStorage.setItem("userID", data.data);
+      alert("Sign Up Successful");
+      router.push("/Dashboard");
+    } else {
+      alert("Please fill the form again");
+    }
   };
 
   return (

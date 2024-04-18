@@ -1,11 +1,34 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import axios from "axios";
+
 export default function Dashboard() {
+  const [userInfo, setUserInfo] = useState({});
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const userID = await localStorage.getItem("userID");
+      const userObj = {
+        userID: userID,
+      };
+      const { data } = await axios.post("/api/fetchOne", userObj); // Destructure data directly
+      const result = data;
+      setUserInfo(result.userInfo); // Update userInfo with result.userInfo
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
   return (
     <>
       <div className="md:text-xl text-lg bg-indigo-700 m-5 flex justify-evenly p-5 text-white">
         <div className="w-1/2">
-          <h1 className="p-2">Hello Rajib</h1>
+          <h1 className="p-2">Hello {userInfo.name}</h1>
         </div>
         <div className="w-1/2">
           <h1 className="bg-white text-indigo-700 rounded-lg p-2">
@@ -25,7 +48,12 @@ export default function Dashboard() {
               className="w-20 h-20"
             />
             <h2 className="text-center font-semibold ">Blood Pressure</h2>
-            <Link href="/Dashboard/BloodPressure">
+            <Link
+              href={{
+                pathname: "/Dashboard/BloodPressure",
+                query: { userInfo: JSON.stringify(userInfo) },
+              }}
+            >
               <button className="p-2 bg-red-600 text-white font-semibold hover:bg-white hover:text-red-600 border-2 border-red-600">
                 Record
               </button>

@@ -7,9 +7,9 @@ export async function POST(req,res){
     }
 
     try{
-        const { name, age, weight, height  } = await req.json()
-        const data = await pool.query(`INSERT INTO user_info (name, age, weight, height) VALUES ($1, $2, $3, $4) RETURNING *`, [name, age, weight, height])
-        return NextResponse.json({status: "OK", data: data.rows[0].id})
+        const { date, systolic, diastolic, pulse, user_id } = await req.json()
+        const data = await pool.query(`INSERT INTO blood_pressure ( date, systolic, diastolic, pulse, user_id ) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [date, systolic, diastolic, pulse, user_id])
+        return NextResponse.json({status: "OK"})
     }catch(error){
         console.error(error);
         return NextResponse.json({status: "Error", error: error.message || "Internal server error" });
