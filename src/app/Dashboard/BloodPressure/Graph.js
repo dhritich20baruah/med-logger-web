@@ -15,10 +15,19 @@ const LineChart = ({ data }) => {
             plugins: {
               title: {
                 display: true,
-                text: "Last Ten Blood Pressure Readings"
+                text: "Last Ten Blood Pressure Readings",
+                color: "black",
               },
               legend: {
                 display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: {
+                    // Change data label color
+                    color: 'black'
+                  }
+                }
               }
             }
           }}

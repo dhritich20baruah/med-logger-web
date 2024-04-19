@@ -9,30 +9,10 @@ import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 Chart.register(CategoryScale);
 
-const data = {
-  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
-  datasets: [
-    {
-      label: "Systolic",
-      data: [125, 127, 125, 130, 134, 130, 127],
-      fill: false,
-      borderColor: "red",
-      tension: 0.1,
-    },
-    {
-      label: "Diastolic",
-      data: [74, 76, 74, 78, 80, 78, 74],
-      fill: false,
-      borderColor: "orange",
-      tension: 0.1,
-    },
-  ],
-};
-
 export default function BloodPressure() {
-  const [systolic, setSystolic] = useState(0)
-  const [diastolic, setDiastolic] = useState(0)
-  const [pulse, setPulse] = useState(0)
+  const [systolic, setSystolic] = useState(120)
+  const [diastolic, setDiastolic] = useState(70)
+  const [pulse, setPulse] = useState(60)
   const searchParams = useSearchParams()
   const userInfo = searchParams.getAll('userInfo')
   // Parse userInfo if it exists
@@ -45,32 +25,44 @@ export default function BloodPressure() {
     }
   }
 
-  
-  const handleSystolicChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= 0 && value <= 300) {
-      setSystolic(value);
+  //HISTORICAL DATA
+  const [prevReadings, setPrevReadings] = useState([{
+    "date": "",
+    "systolic": "",
+    "diastolic": "",
+    "pulse": ""
+  }])
+  useEffect(() => {
+    fetchPressure();
+  }, []);
+
+  const fetchPressure = async () => {
+    try {
+      const userID = await localStorage.getItem("userID");
+      const data = await axios.get(`/api/bloodPressure/${userID}`); // Destructure data directly
+      const result = data.data.readings;
+      setPrevReadings(result)
+    } catch (error) {
+      console.error("Error fetching user:", error);
     }
   };
 
-  const handleDiastolicChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= 0 && value <= 200) {
-      setDiastolic(value);
-    }
-  };
-
+  //NEW RECORD
   const submitPressure = async (e) => {
     e.preventDefault()
     let dateString = new Date().toISOString()
+
+    // if (!isNaN(value) && value >= 0 && value <= 200) {
+    //   setDiastolic(value);
+    // }
+
     const pressureObj = {
       date: dateString.slice(0, dateString.indexOf("T")).split("-").reverse().join("-"),
-      systolic,
-      diastolic,
-      pulse,
+      systolic: parseInt(systolic),
+      diastolic: parseInt(diastolic),
+      pulse: parseInt(pulse),
       user_id: userObj.id
     }
-    console.log(pressureObj)
     const result = await axios.post('/api/bloodPressure', pressureObj)
     const data = result.data
     if (data.status == "OK") {
@@ -80,6 +72,31 @@ export default function BloodPressure() {
       alert("Please fill the form again");
     }
   }
+
+  // CHART DATA
+  let dateArr = prevReadings.map((item)=> item.date)
+  let systolicArr = prevReadings.map((item)=> item.systolic)
+  let diastolicArr = prevReadings.map((item)=> item.diastolic)
+
+  const data = {
+    labels: dateArr.slice(dateArr.length-7, dateArr.length),
+    datasets: [
+      {
+        label: "Systolic",
+        data: systolicArr.slice(systolicArr.length-7, systolicArr.length),
+        fill: false,
+        borderColor: "red",
+        tension: 0.1,
+      },
+      {
+        label: "Diastolic",
+        data: diastolicArr.slice(diastolicArr.length-7, diastolicArr.length),
+        fill: false,
+        borderColor: "orange",
+        tension: 0.1,
+      },
+    ],
+  };
   return (
     <>
       <div className="bg-indigo-700 text-white font-semibold p-3">
@@ -102,17 +119,17 @@ export default function BloodPressure() {
             <div className="last-record flex justify-between my-5 font-bold">
               <div className="text-center">
                 <p className="text-gray-100">Systolic</p>
-                <p className="text-xl">134</p>
+                <p className="text-xl">{prevReadings[prevReadings.length-1].systolic}</p>
                 <p>mmHg</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-100">Diastolic</p>
-                <p className="text-xl">76</p>
+                <p className="text-xl">{prevReadings[prevReadings.length-1].diastolic}</p>
                 <p>mmHg</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-100">Pulse</p>
-                <p className="text-xl">70</p>
+                <p className="text-xl">{prevReadings[prevReadings.length-1].pulse}</p>
                 <p>BPM</p>
               </div>
             </div>
@@ -127,14 +144,14 @@ export default function BloodPressure() {
                 <label className="text-gray-900">Systolic (mmHg)</label> <br />
                 <input
                   className="text-xl p-3 outline-none shadow-lg shadow-black w-20 h-20"
-                  type="number" defaultValue={systolic} min="0" max="300"  onInput={handleSystolicChange} required
+                  type="number" defaultValue={systolic} min="0" max="300"  onChange={(e)=>setSystolic(e.target.value)} required
                 />
               </div>
               <div className="w-1/3 text-center">
                 <label className="text-gray-900">Diastolic (mmHg)</label> <br />
                 <input
                   className="text-xl p-3 outline-none shadow-lg shadow-black w-20 h-20"
-                  type="number" defaultValue={diastolic} min="0" max="200" onInput={handleDiastolicChange} required
+                  type="number" defaultValue={diastolic} min="0" max="200" onChange={(e)=>setDiastolic(e.target.value)} required
                 />
               </div>
               <div className="w-1/3 text-center">
