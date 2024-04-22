@@ -13,6 +13,24 @@ create table diagnostics (
     UNIQUE (user_id)
 );
 
+create table fbs (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+    date VARCHAR NOT NULL,
+	fasting VARCHAR,
+    postprandial VARCHAR,
+    random VARCHAR,
+    user_id BIGINT REFERENCES user_info(id),
+    UNIQUE (user_id)
+);
+
+create table blood_sugar (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+    date VARCHAR NOT NULL,
+	type VARCHAR,
+    sugar VARCHAR,
+    user_id BIGINT NOT NULL
+);
+
 create table blood_sugar (
 	id BIGSERIAL NOT NULL PRIMARY KEY,
     date VARCHAR NOT NULL,
