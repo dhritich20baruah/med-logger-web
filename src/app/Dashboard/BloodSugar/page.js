@@ -19,12 +19,6 @@ export default function BloodSugar() {
   const [sugarValue, setSugarValue] = useState(0);
 
    //HISTORICAL DATA
-   const [prevReadings, setPrevReadings] = useState([{
-    "date": "",
-    "type": "",
-    "sugar": "",
-  }])
-
   useEffect(() => {
     fetchSugar();
   }, []);
@@ -34,7 +28,6 @@ export default function BloodSugar() {
       const userID = await localStorage.getItem("userID");
       const data = await axios.get(`/api/bloodSugar/${userID}`); // Destructure data directly
       const result = data.data.readings;
-      setPrevReadings(result)
       const fastingSugar = result.filter(item => item.type == "fasting")
       setFasting(fastingSugar)
       const ppSugar = result.filter(item => item.type == "postprandial")
@@ -68,7 +61,7 @@ export default function BloodSugar() {
     const result = await axios.post('/api/bloodSugar', sugarObj)
     const data = result.data
     if (data.status == "OK") {
-      alert("Pressure Recorded");
+      alert("Blood Sugar Recorded");
       window.location.reload()
     } else {
       alert("Please fill the form again");
@@ -77,20 +70,20 @@ export default function BloodSugar() {
 
   //CHART
   let fbsDateArr = fasting.map((item)=> item.date)
-  let fbsArr = fasting.map((item)=> item.sugar)
+  let fbsArr = fasting.map((item)=> item.sugar).slice(fasting.length-7, fasting.length)
 
   let pbsDateArr = postprandial.map((item)=> item.date)
-  let pbsArr = postprandial.map((item)=> item.sugar)
+  let pbsArr = postprandial.map((item)=> item.sugar).slice(postprandial.length-7, postprandial.length)
 
   let rbsDateArr = random.map((item)=> item.date)
-  let rbsArr = random.map((item)=> item.sugar)
+  let rbsArr = random.map((item)=> item.sugar).slice(random.length-7, random.length)
 
   const FSS = {
     labels: fbsDateArr.slice(fbsDateArr.length-7, fbsDateArr.length),
     datasets: [
       {
         label: "Fasting",
-        data: fbsArr.slice(fbsArr.length-7, fbsArr.length),
+        data: mgDL ? fbsArr : fbsArr.map(item=> item * 0.05),
         fill: true,
         borderColor: "red",
         tension: 0.1,
@@ -103,7 +96,7 @@ export default function BloodSugar() {
     datasets: [
       {
         label: "Postprandial",
-        data: pbsArr.slice(pbsArr.length-7, pbsArr.length),
+        data: mgDL ? pbsArr : pbsArr.map(item=> item * 0.05),
         fill: true,
         borderColor: "orange",
         tension: 0.1,
@@ -116,7 +109,7 @@ export default function BloodSugar() {
     datasets: [
       {
         label: "Random",
-        data: rbsArr.slice(rbsArr.length-7, rbsArr.length),
+        data: mgDL ? rbsArr : rbsArr.map(item=> item * 0.05),
         fill: true,
         borderColor: "rgb(255,0,255)",
         tension: 0.1,
@@ -233,9 +226,9 @@ export default function BloodSugar() {
         </div>
         <div className="md:m-5 md:w-1/2">
           <h1 className="mx-10 text-center text-lg">My Chart</h1>
-          <SugarChart data={FSS} />
-          <SugarChart data={PPS} />
-          <SugarChart data={RS} />
+          <SugarChart data={FSS} label="Fasting"/>
+          <SugarChart data={PPS} label="Postprandial"/>
+          <SugarChart data={RS} label="Random"/>
         </div>
       </div>
     </>
