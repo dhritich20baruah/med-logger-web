@@ -7,54 +7,44 @@ import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 Chart.register(CategoryScale);
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const FSS = {
-  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
-  datasets: [
-    {
-      label: "Fasting",
-      data: [88, 82, 90, 95, 98, 93, 97],
-      fill: false,
-      borderColor: "red",
-      tension: 0.1,
-    },
-  ],
-};
-
-const PPS = {
-  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
-  datasets: [
-    {
-      label: "Postprandial",
-      data: [104, 106, 104, 108, 100, 108, 104],
-      fill: false,
-      borderColor: "orange",
-      tension: 0.1,
-    },
-  ],
-};
-
-const RS = {
-  labels: ["02-04", "03-04", "04-04", "05-04", "06-04", "07-04", "08-04"],
-  datasets: [
-    {
-      label: "Random",
-      data: [114, 116, 114, 118, 110, 118, 114],
-      fill: false,
-      borderColor: "rgb(255,0,255)",
-      tension: 0.1,
-    },
-  ],
-};
 export default function BloodSugar() {
-  const [fasting, setFasting] = useState(90);
-  const [postprandial, setPostprandial] = useState(120);
-  const [random, setRandom] = useState(100);
+  const [fasting, setFasting] = useState([{"date": "", "type": "", "sugar": ""}]);
+  const [postprandial, setPostprandial] = useState([{"date": "", "type": "", "sugar": ""}]);
+  const [random, setRandom] = useState([{"date": "", "type": "", "sugar": ""}]);
   const [mgDL, setmgDL] = useState(true);
 
   const [testType, setTestType] = useState("");
   const [sugarValue, setSugarValue] = useState(0);
+
+   //HISTORICAL DATA
+   const [prevReadings, setPrevReadings] = useState([{
+    "date": "",
+    "type": "",
+    "sugar": "",
+  }])
+
+  useEffect(() => {
+    fetchSugar();
+  }, []);
+
+  const fetchSugar = async () => {
+    try {
+      const userID = await localStorage.getItem("userID");
+      const data = await axios.get(`/api/bloodSugar/${userID}`); // Destructure data directly
+      const result = data.data.readings;
+      setPrevReadings(result)
+      const fastingSugar = result.filter(item => item.type == "fasting")
+      setFasting(fastingSugar)
+      const ppSugar = result.filter(item => item.type == "postprandial")
+      setPostprandial(ppSugar)
+      const RandomSugar = result.filter(item => item.type == "random")
+      setRandom(RandomSugar)
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
   const handleSelectChange = (event) => {
     setTestType(event.target.value);
@@ -63,7 +53,6 @@ export default function BloodSugar() {
   const togglemgDL = () => {
     setmgDL((mgDL) => !mgDL);
   };
-  const ConversionValue = 18.01;
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -84,6 +73,55 @@ export default function BloodSugar() {
     } else {
       alert("Please fill the form again");
     }
+  };
+
+  //CHART
+  let fbsDateArr = fasting.map((item)=> item.date)
+  let fbsArr = fasting.map((item)=> item.sugar)
+
+  let pbsDateArr = postprandial.map((item)=> item.date)
+  let pbsArr = postprandial.map((item)=> item.sugar)
+
+  let rbsDateArr = random.map((item)=> item.date)
+  let rbsArr = random.map((item)=> item.sugar)
+
+  const FSS = {
+    labels: fbsDateArr.slice(fbsDateArr.length-7, fbsDateArr.length),
+    datasets: [
+      {
+        label: "Fasting",
+        data: fbsArr.slice(fbsArr.length-7, fbsArr.length),
+        fill: true,
+        borderColor: "red",
+        tension: 0.1,
+      },
+    ],
+  };
+  
+  const PPS = {
+    labels: pbsDateArr.slice(pbsDateArr.length-7, pbsDateArr.length),
+    datasets: [
+      {
+        label: "Postprandial",
+        data: pbsArr.slice(pbsArr.length-7, pbsArr.length),
+        fill: true,
+        borderColor: "orange",
+        tension: 0.1,
+      },
+    ],
+  };
+  
+  const RS = {
+    labels: rbsDateArr.slice(rbsDateArr.length-7, rbsDateArr.length),
+    datasets: [
+      {
+        label: "Random",
+        data: rbsArr.slice(rbsArr.length-7, rbsArr.length),
+        fill: true,
+        borderColor: "rgb(255,0,255)",
+        tension: 0.1,
+      },
+    ],
   };
 
   return (
@@ -110,17 +148,17 @@ export default function BloodSugar() {
             <div className="last-record flex justify-between my-5 font-bold">
               <div className="text-center">
                 <p className="text-gray-100">Fasting</p>
-                <p className="text-xl">{ mgDL ? sugarValue * 0.05 : sugarValue}</p>
+                <p className="text-xl">{ mgDL ? fasting[fasting.length-1].sugar : fasting[fasting.length-1].sugar *0.05}</p>
                 <p>{mgDL ? `(mmol/L)` : `(mg/dL)`}</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-100">Postprandial (PP)</p>
-                <p className="text-xl">{ mgDL ? sugarValue * 0.05 : sugarValue}</p>
+                <p className="text-xl">{ mgDL ? postprandial[postprandial.length-1].sugar : postprandial[postprandial.length-1].sugar *0.05}</p>
                 <p>{mgDL ? `(mmol/L)` : `(mg/dL)`}</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-100">Random</p>
-                <p className="text-xl">{ mgDL ? sugarValue * 0.05 : sugarValue}</p>
+                <p className="text-xl">{ mgDL ? random[random.length-1].sugar : random[random.length-1].sugar *0.05}</p>
                 <p>{mgDL ? `(mmol/L)` : `(mg/dL)`}</p>
               </div>
             </div>

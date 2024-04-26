@@ -15,3 +15,16 @@ export async function POST(req,res){
         return NextResponse.json({status: "Error", error: error.message || "Internal server error" });
     }
 }
+
+export async function GET(req, res){
+    if(req.method !== 'GET'){
+        return res.status(405).end()
+    }
+
+    try {
+        const data = await pool.query(`SELECT * FROM user_info`)
+        return NextResponse.json({users: data.rows})
+    } catch (error) {
+        console.error(error)
+    }
+}

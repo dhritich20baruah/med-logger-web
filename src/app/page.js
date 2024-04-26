@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -13,6 +13,13 @@ export default function Home() {
   const [feet, setFeet] = useState(0);
   const [inch, setInch] = useState(0);
   const [errors, setErrors] = useState({});
+  const [userObj, setUserObj] = useState([{
+    "age": "", 
+    "height": "",
+    "id": "",
+    "name": "",
+    "weight": ""
+  }])
 
   const router = useRouter()
 
@@ -23,6 +30,22 @@ export default function Home() {
   const toggleHeightUnit = () => {
     setHeightUnit((heightUnit) => !heightUnit);
   };
+
+  useEffect(()=>{
+     fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    const res = await axios.get('/api/user')
+    setUserObj(res.data.users)
+  }
+
+  const handleDash = (userID) =>{
+    console.log(userID)
+    localStorage.clear()
+    localStorage.setItem("userID", userID);
+    router.push("/Dashboard");
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,15 +117,25 @@ export default function Home() {
     const data = result.data
     console.log(data)
     if (data.status == "OK") {
-      localStorage.setItem("userID", data.data);
       alert("Sign Up Successful");
-      router.push("/Dashboard");
+      window.location.reload()
     } else {
       alert("Please fill the form again");
     }
   };
 
   return (
+    <>
+    <h1 className="text-center text-lg mt-5">Continue as:</h1>
+    <div className="m-3 flex flex-col justify-center items-center">
+      {userObj.map((items)=>{
+        return(
+          <ul className="bg-blue-800 text-white px-5 py-3 m-2 w-1/3 text-center hover:cursor-pointer hover:bg-red-800" key={items.id} onClick={()=>handleDash(items.id)}>
+            <li>{items.name}</li>
+          </ul>
+        )
+      })}
+    </div>   
     <div className="max-w-md mx-auto mt-8">
       <form
         onSubmit={handleSubmit}
@@ -272,5 +305,6 @@ export default function Home() {
         </div>
       </form>
     </div>
+    </>
   );
 }
